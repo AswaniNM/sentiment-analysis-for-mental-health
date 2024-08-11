@@ -1,36 +1,38 @@
 import streamlit as st
 import joblib
+import numpy as np
+import pandas as pd
+import os
+import seaborn as sns
+import plotly.express as px
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
 #st.write('Hello')
 model = joblib.load('assets/Models/best_model.joblib')
 vectorizer = joblib.load('assets/Models/vectorizer.joblib')
 #st.write(model)
 
+from plot import Tweet_Rates_per_Sentiment_Type,pie_chart,distribution_of_statement_lengths,word_cloud_for_Anxiety,word_cloud_for_Depression,word_cloud_for_Suicidal,word_cloud_for_Normal
+
+current_dir = os.path.dirname(__file__)
+csv_path = os.path.join(current_dir, "assets\Datasets\sentimentalds.csv")
+df = pd.read_csv(csv_path)
+
 
 def app():
-    st.write("Sentiment analysis, also known as opinion mining, involves the use of computational techniques to identify and extract subjective information from text. It aims to determine the emotional tone behind words, thereby categorizing sentiments as Normal, Depression,Suicidal or Anxiety. ")
-    st.write("The dataset consists of textual statements tagged with one of four mental health status. This dataset aims to facilitate the development and evaluation of machine learning models for detecting and categorizing mental health conditions based on textual input.They are:")
-    st.markdown("""
-    - Statements
-    - Mental Health Status
-    """)
-    st.markdown("###### Statements")
-    st.write("The primary feature of the dataset is a collection of textual statements.")
-    st.markdown("###### Mental Health Status")
-    st.write("Each statement is tagged with one of the following seven mental health statuses:")  
-    st.markdown("""
-    - Normal: Indicates that the statement does not exhibit signs of mental health issues.
-    - Depression: Statements that reflect symptoms of depression, such as feelings of sadness, hopelessness, and lack of interest in daily activities.
-    - Suicidal: Statements that express suicidal thoughts or intentions.
-    - Anxiety: Statements that show signs of anxiety, such as excessive worry, restlessness, and fear.
-    """)
-    
+    st.markdown("""<div style="text-align: justify;">
+    Tweet Sentiment Analysis of Mental Health is aims to extract and analyse the sentiments expressed in tweets about mental health. The  goal is to categorise tweets into suicidal,normal,anxiety and depression sentiments using machine learning techniques.</div>""", unsafe_allow_html=True)
+    st.markdown("""<div style="text-align: justify;">
+    It entails collecting tweets with mental health-related keywords or hashtags, preprocessing the text data, and categorising the sentiments using algorithms. This analysis can reveal people's attitudes towards mental health issues, the difficulties they face, and the help they seek. Furthermore, the findings can help mental health professionals and researchers better address the needs of their communities.</div>""", unsafe_allow_html=True)
     st.markdown("#### Objective")
-    st.write("The objective of this Mental Health Prediction App is to leverage advanced natural language processing (NLP) techniques and machine learning models to analyze textual statements and predict the associated mental health status.")
-
+    st.markdown("""<div style="text-align: justify;">
+    The primary goal is to use machine learning, specifically Decision Tree algorithms, to analyse the sentiment in mental health-related content. This can aid in identifying trends, interpreting public sentiment, and detecting early signs of mental health issues in online communities.</div>""", unsafe_allow_html=True)
 def input_tab():
     
     # Get user input
-    statement = st.text_input("Enter the Statement", placeholder="Type your statement here...")
+    #statement = st.text_area("Enter the Statement", placeholder="Type your statement here...")
+    statement = st.text_area("Enter the Statement", value=statement if 'statement' in locals() else "", placeholder="Type your statement here...")
 
     # Function to preprocess input and make predictions
     def make_prediction(input_text):
@@ -39,7 +41,7 @@ def input_tab():
         return prediction
     
     # When the user clicks the predict button
-    if st.button('Predict Mental Health'):
+    if st.button('Check Mental Health'):
         if statement:
             try:
                 result = make_prediction(statement)
@@ -52,10 +54,37 @@ def input_tab():
 
 
 def info_graphics():
-    pass
+    st.write("#### About Dataset")
+    st.markdown("""<div style="text-align: justify;">
+    The dataset consists of textual statements tagged with one of four mental health statuses. 
+    This dataset aims to facilitate the development and evaluation of machine learning models 
+    for detecting and categorizing mental health conditions based on textual input.
+    </div>""", unsafe_allow_html=True)
+    
+    st.write("#### Attributes")
+    st.markdown("###### Statements")
+    st.write("The primary feature of the dataset is a collection of textual statements.")
+    st.markdown("###### Mental Health Status")
+    st.write("Each statement is tagged with one of the following four mental health statuses:")  
+    st.markdown("""
+    - Normal: Indicates that the statement does not exhibit signs of mental health issues.
+    - Depression: Statements that reflect symptoms of depression, such as feelings of sadness, hopelessness, and lack of interest in daily activities.
+    - Suicidal: Statements that express suicidal thoughts or intentions.
+    - Anxiety: Statements that show signs of anxiety, such as excessive worry, restlessness, and fear.
+    """)
 
+    Tweet_Rates_per_Sentiment_Type(df)
+    pie_chart(df)
+    distribution_of_statement_lengths(df)
+    word_cloud_for_Anxiety(df)
+    word_cloud_for_Depression(df)
+    word_cloud_for_Suicidal(df)
+    word_cloud_for_Normal(df)
+    
+
+      
 def main():
-    st.markdown("# Mental Health Prediction App")
+    st.markdown("## Tweet Sentiment Analysis of Mental Health")
     tabs = ["App Overview","Info Graphics", "Prediction"]
     selected_tab = st.sidebar.radio("Choose a tab", tabs)
     if selected_tab == "Prediction":
